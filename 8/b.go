@@ -18,11 +18,16 @@ type C struct {
 	X, Y int
 }
 
-func abs(d int) int {
-	if d >= 0 {
-		return d
+func addIfInBounds(antinodes map[C]bool, w, h int, a C) bool {
+	if a.X < 0 || a.X >= w || a.Y < 0 || a.Y >= h {
+		return false
 	}
-	return -d
+	antinodes[a] = true
+	return true
+}
+
+func or(a, b bool) bool {
+	return a || b
 }
 
 func main() {
@@ -43,19 +48,10 @@ func main() {
 		ForEach(cs, func(c1, c2 C) {
 			dx := c2.X - c1.X
 			dy := c2.Y - c1.Y
-			for z := -w; z <= w; z++ { // use w as arbitrary TOO many indicator, e.g. we don't care if out of bounds
-				antinodes[C{c1.X - z*dx, c1.Y - z*dy}] = true
-				antinodes[C{c2.X + z*dx, c2.Y + z*dy}] = true
+			for z := 0; or(addIfInBounds(antinodes, w, h, C{c1.X - z*dx, c1.Y - z*dy}), addIfInBounds(antinodes, w, h, C{c2.X + z*dx, c2.Y + z*dy})); z++ {
 			}
 		})
 	}
 
-	s := 0
-	for c := range antinodes {
-		if c.X >= 0 && c.X < w && c.Y >= 0 && c.Y < h {
-			s++
-		}
-	}
-
-	fmt.Println(s, len(antinodes))
+	fmt.Println(len(antinodes))
 }
