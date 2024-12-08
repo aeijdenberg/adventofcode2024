@@ -41,17 +41,8 @@ func main() {
 	antinodes := make(map[C]bool)
 	for _, cs := range freqs {
 		ForEach(cs, func(c1, c2 C) {
-			dx := abs(c1.X - c2.X)
-			if dx == 0 {
-				antinodes[C{c1.X, min(c1.Y, c2.Y) - abs(c2.Y-c1.Y)}] = true
-				antinodes[C{c1.X, max(c1.Y, c2.Y) + abs(c2.Y-c1.Y)}] = true
-			} else if c1.X < c2.X {
-				antinodes[C{c1.X - dx, c1.Y - (c2.Y - c1.Y)}] = true
-				antinodes[C{c2.X + dx, c2.Y + (c2.Y - c1.Y)}] = true
-			} else {
-				antinodes[C{c2.X - dx, c2.Y + (c2.Y - c1.Y)}] = true
-				antinodes[C{c1.X + dx, c1.Y - (c2.Y - c1.Y)}] = true
-			}
+			antinodes[C{c1.X - (c2.X - c1.X), c1.Y - (c2.Y - c1.Y)}] = true
+			antinodes[C{c2.X + (c2.X - c1.X), c2.Y + (c2.Y - c1.Y)}] = true
 		})
 	}
 
