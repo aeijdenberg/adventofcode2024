@@ -6,28 +6,8 @@ import (
 	"os"
 )
 
-func ForEach(a []C, f func(i, j C)) {
-	for i := 0; i < len(a); i++ {
-		for j := i + 1; j < len(a); j++ {
-			f(a[i], a[j])
-		}
-	}
-}
-
 type C struct {
 	X, Y int
-}
-
-func addIfInBounds(antinodes map[C]bool, w, h int, a C) bool {
-	if a.X < 0 || a.X >= w || a.Y < 0 || a.Y >= h {
-		return false
-	}
-	antinodes[a] = true
-	return true
-}
-
-func or(a, b bool) bool {
-	return a || b
 }
 
 func main() {
@@ -45,12 +25,24 @@ func main() {
 
 	antinodes := make(map[C]bool)
 	for _, cs := range freqs {
-		ForEach(cs, func(c1, c2 C) {
-			dx := c2.X - c1.X
-			dy := c2.Y - c1.Y
-			for z := 0; or(addIfInBounds(antinodes, w, h, C{c1.X - z*dx, c1.Y - z*dy}), addIfInBounds(antinodes, w, h, C{c2.X + z*dx, c2.Y + z*dy})); z++ {
+		for i := 0; i < len(cs); i++ {
+			for j := i + 1; j < len(cs); j++ {
+				dx := cs[j].X - cs[i].X
+				dy := cs[j].Y - cs[i].Y
+				for done, factor := false, 0; !done; factor++ {
+					done = true
+					for _, nn := range []C{
+						{cs[i].X - factor*dx, cs[i].Y - factor*dy},
+						{cs[j].X + factor*dx, cs[j].Y + factor*dy},
+					} {
+						if nn.X >= 0 && nn.X < w && nn.Y >= 0 && nn.Y < h {
+							antinodes[nn] = true
+							done = false
+						}
+					}
+				}
 			}
-		})
+		}
 	}
 
 	fmt.Println(len(antinodes))
