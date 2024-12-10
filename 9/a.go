@@ -110,7 +110,7 @@ func main() {
 		right.Length -= amtToConsume
 	}
 
-	PrintIt(first)
+	// PrintIt(first)
 
 	s := 0
 	for cur := first; cur != last; cur = cur.Next {
