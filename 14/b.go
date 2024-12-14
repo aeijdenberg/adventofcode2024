@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"os"
 	"regexp"
@@ -28,6 +30,32 @@ func mod(a, b int) int {
 	return (a%b + b) % b
 }
 
+type CW struct {
+	C int
+}
+
+func (c *CW) Write(b []byte) (int, error) {
+	c.C += len(b)
+	return len(b), nil
+}
+
+var cw = &CW{}
+var gw = gzip.NewWriter(cw)
+
+func compressSize(b []byte) int {
+	cw.C = 0
+	gw.Reset(cw)
+	_, err := gw.Write(b)
+	if err != nil {
+		panic(err)
+	}
+	err = gw.Close()
+	if err != nil {
+		panic(err)
+	}
+	return cw.C
+}
+
 func main() {
 	r := regexp.MustCompile(`p=(\d+),(\d+) v=(-?\d+),(-?\d+)`)
 	var rs []*R
@@ -39,6 +67,8 @@ func main() {
 		})
 	}
 	w, h := 101, 103
+	buf := &bytes.Buffer{}
+	best := 0x3fffffff
 	for i := 0; ; i++ {
 		counts := make(map[C]int)
 
@@ -46,23 +76,24 @@ func main() {
 			counts[C{mod(r.P.X+r.V.X*i, w), mod(r.P.Y+r.V.Y*i, h)}] += 1
 		}
 
-		if len(counts) != len(rs) {
-			continue
-		}
-
+		buf.Reset()
 		for y := 0; y < h; y++ {
 			for x := 0; x < w; x++ {
 				c := C{x, y}
 				if counts[c] == 0 {
-					fmt.Printf(".")
+					fmt.Fprintf(buf, ".")
 				} else {
-					fmt.Printf("%d", counts[c])
+					fmt.Fprintf(buf, "X")
 				}
 			}
-			fmt.Printf("\n")
+			fmt.Fprintf(buf, "\n")
 		}
-		fmt.Println(i)
-		break
+
+		score := compressSize(buf.Bytes())
+		if score < best {
+			fmt.Printf("%d (score: %d):\n%s\n", i, score, buf.Bytes())
+			best = score
+		}
 	}
 
 }
