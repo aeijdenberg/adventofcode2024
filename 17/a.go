@@ -39,11 +39,11 @@ func (c *C) Run() {
 		c.IP++
 		switch opcode {
 		case 0: // adv
-			c.A = c.A / (1 << c.combo(operand))
+			c.A = c.A >> c.combo(operand)
 		case 1: // bxl
 			c.B = c.B ^ operand
 		case 2: // bst
-			c.B = c.combo(operand) % 8
+			c.B = c.combo(operand) & 0x7
 		case 3: // jnz
 			if c.A != 0 {
 				c.IP = operand
@@ -51,11 +51,11 @@ func (c *C) Run() {
 		case 4: // bxc
 			c.B = c.B ^ c.C
 		case 5: // out
-			c.O = append(c.O, c.combo(operand)%8)
+			c.O = append(c.O, c.combo(operand)&0x7)
 		case 6: // bdv
-			c.B = c.A / (1 << c.combo(operand))
+			c.B = c.A >> c.combo(operand)
 		case 7: // cdv
-			c.C = c.A / (1 << c.combo(operand))
+			c.C = c.A >> c.combo(operand)
 		default:
 			panic("bad")
 		}
