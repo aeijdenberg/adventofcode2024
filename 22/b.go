@@ -59,6 +59,8 @@ func main() {
 		}
 	}
 
+	fmt.Println("here")
+
 	bestVal := int64(-1)
 	for k := range allKeys {
 		a := int64(0)
